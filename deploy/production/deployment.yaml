@@ -38,61 +38,61 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_HOST
-                  name: pgsql-qcloud
+                  name: pgsql
                   optional: false
             - name: PGSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_PASSWORD
-                  name: pgsql-qcloud
+                  name: pgsql
                   optional: false
             - name: PGSQL_PORT
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_PORT
-                  name: pgsql-qcloud
+                  name: pgsql
                   optional: false
             - name: PGSQL_USER
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_USER
-                  name: pgsql-qcloud
+                  name: pgsql
                   optional: false
             - name: X402_PAY_TO
               valueFrom:
                 secretKeyRef:
-                  key: X402_PAY_TO
-                  name: facilitator-shared
+                  key: PAY_TO
+                  name: x402
                   optional: false
             - name: X402_NETWORK
               valueFrom:
                 secretKeyRef:
-                  key: X402_NETWORK
-                  name: facilitator-shared
+                  key: NETWORK
+                  name: x402
                   optional: false
             - name: X402_USDC_CONTRACT
               valueFrom:
                 secretKeyRef:
-                  key: X402_USDC_CONTRACT
-                  name: facilitator-shared
+                  key: USDC_CONTRACT
+                  name: x402
                   optional: false
             - name: X402_RPC_URL
               valueFrom:
                 secretKeyRef:
-                  key: X402_RPC_URL
-                  name: facilitator-shared
+                  key: RPC_URL
+                  name: x402
                   optional: false
             - name: X402_SIGNER_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  key: X402_SIGNER_PRIVATE_KEY
-                  name: facilitator-shared
+                  key: SIGNER_PRIVATE_KEY
+                  name: x402
                   optional: false
             - name: X402_SIGNER_ADDRESS
               valueFrom:
                 secretKeyRef:
-                  key: X402_SIGNER_ADDRESS
-                  name: facilitator-shared
+                  key: SIGNER_ADDRESS
+                  name: x402
                   optional: false
             - name: X402_GAS_LIMIT
               value: "250000"
