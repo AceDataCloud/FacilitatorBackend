@@ -4,8 +4,6 @@ Ace Data Cloud runs Facilitator X402 as the production settlement engine behind 
 
 ## X402 at a glance
 
-![x402 overview](https://mintcdn.com/payai/mg1pvJPl2NNq9wNO/images/x402/x402-1.webp)
-
 [x402](https://x402.org) is an open protocol that brings stablecoin payments to plain HTTP by reviving status code **402 Payment Required**:
 
 - Clients obtain payment instructions through a standard HTTP response, then respond with a typed authorization.
@@ -24,7 +22,7 @@ Web-scale applications and AI agents need instant, programmable settlement. Lega
 3. The client signs a `TransferWithAuthorization` payload and sends it back.
 4. Facilitator X402 verifies, settles on-chain, and the resource is released.
 
-![x402 sequence](https://mintcdn.com/payai/mg1pvJPl2NNq9wNO/images/x402-sequence-diagram.svg)
+![x402 sequence](https://cdn.acedata.cloud/30qdwn.jpg)
 
 ## Facilitator capabilities
 
@@ -32,24 +30,24 @@ Web-scale applications and AI agents need instant, programmable settlement. Lega
 - **Settlement execution** – `POST /x402/settle` re-validates the stored authorization, invokes `transferWithAuthorization`, waits for the receipt, and marks the record as settled.
 - **Operational endpoints** – `/` and `/healthz` provide JSON probes for L7 load balancers.
 - **Web3 integration** – Configurable RPC endpoint, gas limits, and optional EIP-1559 fees. Supports any stablecoin contract address supplied in the request.
-- **Automated delivery** – `.github/workflows/facilitator-deploy.yaml` builds & deploys to Kubernetes using `deploy/run.sh` and the manifests under `deploy/production/`.
+- **Automated delivery** – `.github/workflows/deploy.yaml` builds & deploys to Kubernetes using `deploy/run.sh` and the manifests under `deploy/production/`.
 
 ## Configuration
 
 Environment variables govern runtime behaviour (see the supplied `.env`).
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `APP_ENV` | Environment (local, production, …) | No | `local` |
-| `APP_SECRET_KEY` | Django secret key | Yes | — |
-| `PGSQL_HOST`, `PGSQL_PORT`, `PGSQL_USER`, `PGSQL_PASSWORD`, `PGSQL_DATABASE_FACILITATOR` | PostgreSQL connection info | Yes | — |
-| `X402_RPC_URL` | RPC endpoint used for settlement transactions | Yes | — |
-| `X402_SIGNER_PRIVATE_KEY` | Private key used to sign settlements | Yes | — |
-| `X402_SIGNER_ADDRESS` | Optional explicit signer address | No | derived from key |
-| `X402_GAS_LIMIT` | Gas limit applied to settlements | No | `250000` |
-| `X402_TX_TIMEOUT_SECONDS` | Timeout (seconds) waiting for receipts | No | `120` |
-| `X402_MAX_FEE_PER_GAS_WEI` | Max fee per gas (EIP-1559) | No | `0` (use legacy gas price) |
-| `X402_MAX_PRIORITY_FEE_PER_GAS_WEI` | Priority fee per gas (EIP-1559) | No | `0` |
+| Variable                                                                                 | Description                                   | Required | Default                    |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------- | -------- | -------------------------- |
+| `APP_ENV`                                                                                | Environment (local, production, …)            | No       | `local`                    |
+| `APP_SECRET_KEY`                                                                         | Django secret key                             | Yes      | —                          |
+| `PGSQL_HOST`, `PGSQL_PORT`, `PGSQL_USER`, `PGSQL_PASSWORD`, `PGSQL_DATABASE_FACILITATOR` | PostgreSQL connection info                    | Yes      | —                          |
+| `X402_RPC_URL`                                                                           | RPC endpoint used for settlement transactions | Yes      | —                          |
+| `X402_SIGNER_PRIVATE_KEY`                                                                | Private key used to sign settlements          | Yes      | —                          |
+| `X402_SIGNER_ADDRESS`                                                                    | Optional explicit signer address              | No       | derived from key           |
+| `X402_GAS_LIMIT`                                                                         | Gas limit applied to settlements              | No       | `250000`                   |
+| `X402_TX_TIMEOUT_SECONDS`                                                                | Timeout (seconds) waiting for receipts        | No       | `120`                      |
+| `X402_MAX_FEE_PER_GAS_WEI`                                                               | Max fee per gas (EIP-1559)                    | No       | `0` (use legacy gas price) |
+| `X402_MAX_PRIORITY_FEE_PER_GAS_WEI`                                                      | Priority fee per gas (EIP-1559)               | No       | `0`                        |
 
 Callers are responsible for restricting `pay_to`, `asset`, and `network` values in payloads to approved destinations.
 
@@ -72,7 +70,7 @@ python manage.py runserver 0.0.0.0:8008
 
 - `docker-compose build && docker-compose up` runs the service with `uvicorn core.asgi:application --host 0.0.0.0 --port 8000`.
 - Kubernetes manifests live under `deploy/production`. Use `deploy/run.sh` during CI/CD to substitute the build number and apply.
-- The GitHub Actions workflow `.github/workflows/facilitator-deploy.yaml` handles build → push → rollout to the Ace Data Cloud cluster.
+- The GitHub Actions workflow `.github/workflows/deploy.yaml` handles build → push → rollout to the Ace Data Cloud cluster.
 
 ## API quick reference
 
