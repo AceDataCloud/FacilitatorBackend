@@ -57,6 +57,28 @@ class X402FacilitatorValidationError(X402FacilitatorError):
         self.message = message
 
 
+def _map_contract_logic_error(exc: ContractLogicError) -> str:
+    """
+    Turn low-level contract errors into a more user-friendly reason.
+
+    This is best‑effort only – on many networks a generic revert will not
+    expose a precise reason. We still try to surface common cases like
+    insufficient balance.
+    """
+    message = str(exc) or ''
+    lower = message.lower()
+
+    # Typical ERC‑20 insufficient balance messages
+    if 'amount exceeds balance' in lower or 'insufficient balance' in lower:
+        return 'Payer has insufficient token balance for settlement.'
+
+    # Native token (gas) insufficiency on the facilitator signer
+    if 'insufficient funds' in lower:
+        return 'Facilitator signer has insufficient native balance to pay gas.'
+
+    return 'Settlement transaction reverted on-chain.'
+
+
 @dataclass(frozen=True)
 class ValidatedAuthorization:
     payload: PaymentPayload
@@ -312,6 +334,15 @@ def _submit_transfer_with_authorization(data: ValidatedAuthorization) -> str:
         s,
     )
 
+    # Pre-flight simulation to surface clearer on-chain revert reasons
+    try:
+        transfer_fn.call({'from': signer_address})
+    except ContractLogicError as exc:
+        # Map to a more specific, user-friendly error where possible
+        friendly = _map_contract_logic_error(exc)
+        logger.error('x402 settlement simulation failed: {}', exc)
+        raise X402FacilitatorError(friendly) from exc
+
     try:
         estimated_gas = transfer_fn.estimate_gas({'from': signer_address})
     except Exception as exc:  # pragma: no cover - estimation often fails in tests
@@ -509,10 +540,11 @@ class X402SettleView(APIView):
             )
         except ContractLogicError as exc:
             logger.error('x402 settlement reverted on-chain: {}', exc)
+            reason = _map_contract_logic_error(exc)
             return Response(
                 {
                     'success': False,
-                    'errorReason': 'Settlement transaction reverted on-chain.',
+                    'errorReason': reason,
                     'transaction': None,
                 },
                 status=status.HTTP_200_OK,
